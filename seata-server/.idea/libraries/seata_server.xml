@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="seata-server">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/seata/target/seata-server.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

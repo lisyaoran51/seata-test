@@ -1,0 +1,24 @@
+version: "3.1"
+services:
+  seata-server:
+    image: seataio/seata-server:1.7.0
+    ports:
+      - "7091:7091"
+      - "8091:8091"
+    environment:
+      - STORE_MODE=db
+    volumes:
+      - "./config/docker-data/seata/seata-server/resources:/seata-server/resources"
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: seata
+    ports:
+      - 3310:3306
+#    expose:
+#      - '3310'
+  test-alpine:
+    image: alpine
+    command: sh -c "while true; do sleep 1; done"

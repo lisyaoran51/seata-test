@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="plugins">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/seata/ext/apm-skywalking/plugins/apm-seata-skywalking-plugin-1.7.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/seata/ext/apm-skywalking/plugins/apm-mysql-6.x-plugin-8.6.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/seata/ext/apm-skywalking/plugins/apm-mysql-5.x-plugin-8.6.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/seata/ext/apm-skywalking/plugins/apm-jdbc-commons-8.6.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/seata/ext/apm-skywalking/plugins/apm-mysql-commons-8.6.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/seata/ext/apm-skywalking/plugins/apm-mysql-8.x-plugin-8.6.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
