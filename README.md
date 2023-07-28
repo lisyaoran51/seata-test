@@ -120,6 +120,10 @@ CREATE TABLE d_account.t_account (
 
 
 INSERT INTO d_account.t_account(`balance`) VALUES (200000);
+INSERT INTO d_account.t_account(`balance`) VALUES (200000);
+INSERT INTO d_account.t_account(`balance`) VALUES (200000);
+INSERT INTO d_account.t_account(`balance`) VALUES (200000);
+INSERT INTO d_account.t_account(`balance`) VALUES (200000);
 
 
 ```
@@ -225,3 +229,6 @@ seata:
       max-wait: 5000
 ```
 
+https://developer.aliyun.com/article/742741
+docker pull zhusaidong/nacos-server-m1:2.0.3
+docker run --name nacos-standalone -e MODE=standalone -e JVM_XMS=512m -e JVM_XMX=512m -e JVM_XMN=256m -p 8848:8848 -d zhusaidong/nacos-server-m1:2.0.3

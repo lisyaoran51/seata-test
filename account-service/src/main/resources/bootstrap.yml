@@ -1,0 +1,12 @@
+#bootstrap.properties基礎設定
+#服務名稱
+spring:
+  application:
+    name: account-service
+  #暴露config設定服務地址(動態更新)
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yml
+  #設定config副檔名(properties & yml)

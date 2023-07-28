@@ -1,6 +1,6 @@
 package org.example.orderService.cloud;
 
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 import org.example.orderService.cloud.dto.account.AddBalanceByIdDto;
 import org.example.orderService.cloud.po.Account;
 import org.example.orderService.cloud.vo.account.AddBalanceByIdVo;
@@ -16,7 +16,7 @@ import java.util.List;
 
 
 
-@FeignClient(name = "account-service", url = "127.0.0.1:8095")
+@FeignClient(name = "account-service")//, url = "127.0.0.1:8095")
 public interface AccountService {
 
 

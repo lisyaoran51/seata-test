@@ -8,11 +8,9 @@ import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.example.accountService.dao.AccountDao;
 import org.example.accountService.domain.dto.account.AddBalanceByIdDto;
+import org.example.accountService.domain.dto.account.LockDto;
 import org.example.accountService.domain.po.Account;
-import org.example.accountService.domain.vo.account.AddBalanceByIdVo;
-import org.example.accountService.domain.vo.account.ListVo;
-import org.example.accountService.domain.vo.account.SaveVo;
-import org.example.accountService.domain.vo.account.UpdateByIdVo;
+import org.example.accountService.domain.vo.account.*;
 import org.example.accountService.service.AccountService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -61,6 +59,7 @@ public class AccountServiceImpl extends ServiceImplBase<AccountDao, Account> imp
     }
 
     @Override
+    @GlobalTransactional
     public AddBalanceByIdDto addBalanceById(AddBalanceByIdVo addBalanceByIdVo) {
         log.info("updateById: {}", addBalanceByIdVo);
         if (addBalanceByIdVo.isInTransaction()) {
@@ -70,6 +69,22 @@ public class AccountServiceImpl extends ServiceImplBase<AccountDao, Account> imp
             return addBalanceByIdInGlobalTransaction(addBalanceByIdVo);
         }
         return addBalanceByIdSimple(addBalanceByIdVo);
+    }
+
+    @Override
+    public LockDto lock(LockVo lockVo) {
+        locks.put(lockVo.getId(), 1);
+        var clone = new HashMap<Integer, Integer>();
+        clone.putAll(locks);
+        return new LockDto(clone);
+    }
+
+    @Override
+    public LockDto unlock(LockVo lockVo) {
+        locks.put(lockVo.getId(), 0);
+        var clone = new HashMap<Integer, Integer>();
+        clone.putAll(locks);
+        return new LockDto(clone);
     }
 
     AddBalanceByIdDto addBalanceByIdSimple(AddBalanceByIdVo addBalanceByIdVo) {

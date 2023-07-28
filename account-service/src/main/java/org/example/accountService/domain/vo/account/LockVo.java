@@ -1,17 +1,15 @@
 package org.example.accountService.domain.vo.account;
 
-import javax.validation.constraints.Null;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateByIdVo {
-    @Null
-    Long id;
-    BigDecimal balance;
+public class LockVo {
+
+    @NotNull
+    Integer id;
 }

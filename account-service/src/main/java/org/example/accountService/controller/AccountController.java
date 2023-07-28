@@ -1,6 +1,6 @@
 package org.example.accountService.controller;
 
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 import org.example.accountService.domain.dto.account.AddBalanceByIdDto;
 import org.example.accountService.domain.po.Account;
 import org.example.accountService.domain.vo.account.AddBalanceByIdVo;

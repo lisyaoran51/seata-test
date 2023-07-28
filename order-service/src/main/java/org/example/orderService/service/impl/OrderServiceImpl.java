@@ -46,6 +46,7 @@ public class OrderServiceImpl extends ServiceImplBase<OrderDao, Order> implement
     }
 
     @Override
+    @GlobalTransactional
     public Long save(SaveVo saveVo) {
         log.info("save: {}", saveVo);
         if (saveVo.isInTransaction()) {
@@ -140,7 +141,34 @@ public class OrderServiceImpl extends ServiceImplBase<OrderDao, Order> implement
 
     @GlobalTransactional
     public Long saveInGlobalTransaction(SaveVo saveVo) {
-        var result = saveSimple(saveVo);
+        Order order = new Order();
+        BeanUtils.copyProperties(saveVo, order);
+        if (!save(order)) {
+            throw new RuntimeException("fail to save: " + order.toString());
+        }
+
+        var addBalanceResult = accountService.addBalanceById(
+                saveVo.getUserId(),
+                AddBalanceByIdVo.builder()
+                        .addBalance(saveVo.getMoney().negate())
+                        .inGlobalTransaction(true).build());
+        log.info("accountService.addBalanceById: {}", addBalanceResult);
+
+        if (true)
+            throw new RuntimeException("test rollback");
+        if (!addBalanceResult.getSuccess()) {
+            order.setStatus(2);
+            if (!updateById(order)) {
+                throw new RuntimeException("fail to update: " + order.toString());
+            }
+            return order.getId();
+        }
+
+        order.setStatus(1);
+        if (!updateById(order)) {
+            throw new RuntimeException("fail to update: " + order.toString());
+        }
+
         while(saveVo.getLockId() != null && locks.containsKey(saveVo.getLockId()) && locks.get(saveVo.getLockId()) > 0) {
             try{
                 Thread.sleep(100);
@@ -148,9 +176,6 @@ public class OrderServiceImpl extends ServiceImplBase<OrderDao, Order> implement
                 log.error("{}", e);
             }
         }
-        return result;
+        return order.getId();
     }
-
-
-
 }

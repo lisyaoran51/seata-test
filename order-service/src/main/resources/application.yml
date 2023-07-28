@@ -4,6 +4,24 @@ server:
 spring:
   application:
     name: order-service
+  cloud:
+    nacos:
+      config:
+        enabled: true
+        server-addr: 127.0.0.1:8848
+
+      discovery:
+        username: nacos
+        password: nacos
+        enabled: true
+        server-addr: 127.0.0.1:8848
+        register-enabled: true
+    alibaba:
+      seata:
+        tx-service-group: default
+
+
+
 
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
@@ -25,7 +43,7 @@ mybatis:
 logging:
   level:
     org:
-      springframework: WARN
+      springframework: INFO
       example:
         orderService:
           dao: DEBUG
@@ -62,8 +80,7 @@ seata:
       my_test_tx_group: default # TC 集群（必须与seata-server保持一致）
     enable-degrade: false # 降级开关
     disable-global-transaction: false # 禁用全局事务（默认false）
-    grouplist:
-      default: 127.0.0.1:8091
+    grouplist: 127.0.0.1:8091
   transport:
     shutdown:
       wait: 3
@@ -82,13 +99,13 @@ seata:
     compressor: none
     enable-client-batch-send-request: true # 客户端事务消息请求是否批量合并发送（默认true）
   registry:
+    type: file
     file:
       name: file.conf
-      type: file
   config:
+    type: file
     file:
       name: file.conf
-      type: file
   store:
     # support: file 、 db 、 redis
     mode: db

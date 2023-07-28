@@ -9,16 +9,38 @@ services:
       - STORE_MODE=db
     volumes:
       - "./config/docker-data/seata/seata-server/resources:/seata-server/resources"
+    restart: on-failure
 
   db:
     image: mysql:5.7
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: seata
+    volumes:
+      - ./mysql/volume:/var/lib/mysql
     ports:
       - 3310:3306
 #    expose:
 #      - '3310'
-  test-alpine:
-    image: alpine
-    command: sh -c "while true; do sleep 1; done"
+
+#  test-alpine:
+#    image: alpine
+#    command: sh -c "while true; do sleep 1; done"
+  
+  nacos:
+    image: zhusaidong/nacos-server-m1:2.0.3
+    ports:
+      - 8848:8848
+      - 9848:9848
+      - 9849:9849
+    environment:
+      - MODE=standalone
+      - JVM_XMS=512m
+      - JVM_XMX=512m
+      - JVM_XMN=256m
+
+#docker run --name nacos-standalone -e MODE=standalone -e JVM_XMS=512m -e JVM_XMX=512m -e JVM_XMN=256m -p 8848:8848 -d zhusaidong/nacos-server-m1:2.0.3
+
+
+
+

@@ -1,9 +1,27 @@
+
 server:
   port: 8095
+
 
 spring:
   application:
     name: account-service
+
+  cloud:
+    nacos:
+      config:
+        enabled: true
+        server-addr: 127.0.0.1:8848
+
+      discovery:
+        username: nacos
+        password: nacos
+        enabled: true
+        server-addr: 127.0.0.1:8848
+        register-enabled: true
+    alibaba:
+      seata:
+        tx-service-group: default
 
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
@@ -25,7 +43,7 @@ mybatis:
 logging:
   level:
     org:
-      springframework: WARN
+      springframework: INFO
       example:
         accountService:
           dao: DEBUG
@@ -82,13 +100,13 @@ seata:
     compressor: none
     enable-client-batch-send-request: true # 客户端事务消息请求是否批量合并发送（默认true）
   registry:
+    type: file
     file:
-      name: file.conf
-      type: file
+      name: file.confx
   config:
+    type: file
     file:
       name: file.conf
-      type: file
   store:
     # support: file 、 db 、 redis
     mode: db
