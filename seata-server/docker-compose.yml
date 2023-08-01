@@ -7,6 +7,8 @@ services:
       - "8091:8091"
     environment:
       - STORE_MODE=db
+      - SEATA_IP=192.168.4.133  # ifconfig en0 | grep inet
+      - SEATA_PORT=8091
     volumes:
       - "./config/docker-data/seata/seata-server/resources:/seata-server/resources"
     restart: on-failure
@@ -38,6 +40,8 @@ services:
       - JVM_XMS=512m
       - JVM_XMX=512m
       - JVM_XMN=256m
+    volumes:
+      - ../nacos/conf:/home/nacos/conf
 
 #docker run --name nacos-standalone -e MODE=standalone -e JVM_XMS=512m -e JVM_XMX=512m -e JVM_XMN=256m -p 8848:8848 -d zhusaidong/nacos-server-m1:2.0.3
 

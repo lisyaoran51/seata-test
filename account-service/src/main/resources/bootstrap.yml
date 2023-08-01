@@ -10,3 +10,22 @@ spring:
         server-addr: 127.0.0.1:8848
         file-extension: yml
   #設定config副檔名(properties & yml)
+#
+#seata:
+#  enabled: true
+#  application-id: ${spring.application.name}
+#  # 事务分组, 后面细讲
+#  tx-service-group: default_tx_group
+#  registry:
+#    type: nacos
+#    nacos:
+#      # 应与seata-server实际注册的服务名一致
+#      application: seata-server
+#      server-addr: 127.0.0.1:8848
+#      group: SEATA_GROUP
+#  config:
+#    type: nacos
+#    nacos:
+#      server-addr: 127.0.0.1:8848
+#      group: SEATA_GROUP
+#      data-id: seata.properties

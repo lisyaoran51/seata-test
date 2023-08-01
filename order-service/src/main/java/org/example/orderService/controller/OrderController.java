@@ -9,12 +9,14 @@ import org.example.orderService.domain.vo.order.ListVo;
 import org.example.orderService.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/order")
+@Slf4j
 public class OrderController {
 
     @Autowired
@@ -27,7 +29,14 @@ public class OrderController {
 
     @PostMapping("/orders")
     public HttpResult<Long> save(@RequestBody SaveVo saveVo) {
-        return HttpResult.buildSuccess(orderService.save(saveVo));
+        log.info("save: {}", saveVo);
+        if (saveVo.isInTransaction()) {
+            return HttpResult.buildSuccess(orderService.saveInTransaction(saveVo));
+        }
+        if (saveVo.isInGlobalTransaction()) {
+            return HttpResult.buildSuccess(orderService.saveInGlobalTransaction(saveVo));
+        }
+        return HttpResult.buildSuccess(orderService.saveSimple(saveVo));
     }
 
     @PostMapping("/lock")

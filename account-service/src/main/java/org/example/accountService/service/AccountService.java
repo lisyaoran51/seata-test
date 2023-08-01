@@ -17,7 +17,11 @@ public interface AccountService extends IService<Account> {
 
     void updateById(UpdateByIdVo updateByIdVo);
 
-    AddBalanceByIdDto addBalanceById(AddBalanceByIdVo addBalanceByIdVo);
+    AddBalanceByIdDto addBalanceByIdSimple(AddBalanceByIdVo addBalanceByIdVo);
+
+    AddBalanceByIdDto addBalanceByIdInTransaction(AddBalanceByIdVo addBalanceByIdVo);
+
+    AddBalanceByIdDto addBalanceByIdInGlobalTransaction(AddBalanceByIdVo addBalanceByIdVo);
 
     LockDto lock(LockVo lockVo);
 

@@ -7,6 +7,7 @@ import org.example.orderService.domain.po.Order;
 import org.example.orderService.domain.vo.order.ListVo;
 import org.example.orderService.domain.vo.order.LockVo;
 import org.example.orderService.domain.vo.order.SaveVo;
+import org.example.orderService.domain.vo.order.UpdateVo;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,13 @@ public interface OrderService extends IService<Order> {
 
     List<Order> list(ListVo listVo);
 
-    Long save(SaveVo saveVo);
+    Long saveSimple(SaveVo saveVo);
+
+    Long saveInTransaction(SaveVo saveVo);
+
+    Long saveInGlobalTransaction(SaveVo saveVo);
+
+    int update(UpdateVo updateVo);
 
     LockDto lock(LockVo lockVo);
 

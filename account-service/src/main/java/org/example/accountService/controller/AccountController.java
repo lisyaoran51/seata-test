@@ -1,6 +1,8 @@
 package org.example.accountService.controller;
 
 import javax.validation.constraints.NotNull;
+
+import lombok.extern.slf4j.Slf4j;
 import org.example.accountService.domain.dto.account.AddBalanceByIdDto;
 import org.example.accountService.domain.po.Account;
 import org.example.accountService.domain.vo.account.AddBalanceByIdVo;
@@ -17,6 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/account")
+@Slf4j
 public class AccountController {
 
     @Autowired
@@ -41,7 +44,16 @@ public class AccountController {
 
     @PutMapping("/accounts/{id}/addBalance")
     HttpResult<AddBalanceByIdDto> addBalanceById(@NotNull @PathVariable Long id, @Validated @RequestBody AddBalanceByIdVo addBalanceByIdVo) {
+        log.info("addBalanceById: {}", addBalanceByIdVo);
         addBalanceByIdVo.setId(id);
-        return HttpResult.buildSuccess(accountService.addBalanceById(addBalanceByIdVo));
+
+        if (addBalanceByIdVo.isInTransaction()) {
+            return HttpResult.buildSuccess(accountService.addBalanceByIdInTransaction(addBalanceByIdVo));
+        }
+        if (addBalanceByIdVo.isInGlobalTransaction()) {
+            return HttpResult.buildSuccess(accountService.addBalanceByIdInGlobalTransaction(addBalanceByIdVo));
+        }
+        return HttpResult.buildSuccess(accountService.addBalanceByIdSimple(addBalanceByIdVo));
+
     }
 }

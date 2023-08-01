@@ -42,6 +42,8 @@ seata:
   config:
     # support: nacos, consul, apollo, zk, etcd3
     type: file
+    file:
+      name: file.conf
 
   registry:
     # support: nacos, eureka, redis, zk, consul, etcd3, sofa
@@ -50,10 +52,7 @@ seata:
       name: file.conf
     nacos:
       server-addr: nacos:8848
-      application: "seata-server"
-      group: "SEATA_GROUP"
       namespace: ""
-      cluster: "default"
 
 
   store:
@@ -74,79 +73,6 @@ seata:
       distributed-lock-table: distributed_lock
       query-limit: 1000
       max-wait: 5000
-
-  transport:
-    type: TCP
-    server: NIO
-    heartbeat: true
-    enableClientBatchSendRequest: false
-    threadFactory:
-      bossThreadPrefix: NettyBoss
-      workerThreadPrefix: NettyServerNIOWorker
-      serverExecutorThreadPrefix: NettyServerBizHandler
-      shareBossWorker: false
-      clientSelectorThreadPrefix: NettyClientSelector
-      clientSelectorThreadSize: 1
-      clientWorkerThreadPrefix: NettyClientWorkerThread
-      bossThreadSize: 1
-      workerThreadSize: default
-    shutdown:
-      wait: 3
-    serialization: seata
-    compressor: none
-
-  service:
-    vgroupMapping:
-      my_test_tx_group: default
-    default:
-      grouplist: seata:8091
-    enableDegrade: false
-    disableGlobalTransaction: false
-
-  client:
-    rm: 
-      asyncCommitBufferLimit: 10000
-      lock:
-        retryInterval: 10
-        retryTimes: 30
-        retryPolicyBranchRollbackOnConflict: true
-      reportRetryCount: 5
-      tableMetaCheckEnable: false
-      sqlParserType: druid
-      reportSuccessEnable: false
-      sagaBranchRegisterEnable: false
-    tm:
-      commitRetryCount: 5
-      rollbackRetryCount: 5
-      degradeCheck: false
-      degradeCheckAllowTimes: 10
-      degradeCheckPeriod: 2000
-    undo:
-      dataValidation: true
-      logSerialization: jackson
-      onlyCareUpdateColumns: true
-      logTable: undo_log
-    log:
-      exceptionRate: 100
-
-  server:
-    recovery:
-      committingRetryPeriod: 1000
-      asynCommittingRetryPeriod: 1000
-      rollbackingRetryPeriod: 1000
-      timeoutRetryPeriod: 1000
-    maxCommitRetryTimeout: -1
-    maxRollbackRetryTimeout: -1
-    rollbackRetryTimeoutUnlockEnable: false
-    undo:
-      logSaveDays: 7
-      logDeletePeriod: 86400000
-
-  metrics:
-    enabled: false
-    registryType: compact
-    exporterList: prometheus
-    exporterPrometheusPort: 9898
 
 #  server:
 #    service-port: 8091 #If not configured, the default is '${server.port} + 1000'

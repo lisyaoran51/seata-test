@@ -2,6 +2,7 @@ package org.example.orderService.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
@@ -14,12 +15,14 @@ import org.example.orderService.domain.po.Order;
 import org.example.orderService.domain.vo.order.ListVo;
 import org.example.orderService.domain.vo.order.LockVo;
 import org.example.orderService.domain.vo.order.SaveVo;
+import org.example.orderService.domain.vo.order.UpdateVo;
 import org.example.orderService.service.OrderService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +36,9 @@ public class OrderServiceImpl extends ServiceImplBase<OrderDao, Order> implement
     @Autowired
     AccountService accountService;
 
+    @Autowired
+    OrderDao orderDao;
+
     @Override
     public List<Order> list(ListVo listVo) {
         log.info("list: {}", listVo);
@@ -43,19 +49,6 @@ public class OrderServiceImpl extends ServiceImplBase<OrderDao, Order> implement
                 .eq(has(listVo.getStatus()), Order::getStatus, listVo.getStatus());
 
         return list(queryWrapper);
-    }
-
-    @Override
-    @GlobalTransactional
-    public Long save(SaveVo saveVo) {
-        log.info("save: {}", saveVo);
-        if (saveVo.isInTransaction()) {
-            return saveInTransaction(saveVo);
-        }
-        if (saveVo.isInGlobalTransaction()) {
-            return saveInGlobalTransaction(saveVo);
-        }
-        return saveSimple(saveVo);
     }
 
     @Override
@@ -74,7 +67,10 @@ public class OrderServiceImpl extends ServiceImplBase<OrderDao, Order> implement
         return new LockDto(clone);
     }
 
+    @Override
     public Long saveSimple(SaveVo saveVo) {
+        log.info("saveSimple: {}", saveVo);
+
         Order order = new Order();
         BeanUtils.copyProperties(saveVo, order);
         if (!save(order)) {
@@ -102,8 +98,10 @@ public class OrderServiceImpl extends ServiceImplBase<OrderDao, Order> implement
         return order.getId();
     }
 
+    @Override
     @Transactional
     public Long saveInTransaction(SaveVo saveVo) {
+        log.info("saveInTransaction: {}", saveVo);
         Order order = new Order();
         BeanUtils.copyProperties(saveVo, order);
         if (!save(order)) {
@@ -113,7 +111,8 @@ public class OrderServiceImpl extends ServiceImplBase<OrderDao, Order> implement
         var addBalanceResult = accountService.addBalanceById(
                 saveVo.getUserId(),
                 AddBalanceByIdVo.builder()
-                        .addBalance(saveVo.getMoney().negate()).build());
+                        .addBalance(saveVo.getMoney().negate())
+                        .build());
         log.info("accountService.addBalanceById: {}", addBalanceResult);
 
         if (!addBalanceResult.getSuccess()) {
@@ -139,8 +138,11 @@ public class OrderServiceImpl extends ServiceImplBase<OrderDao, Order> implement
         return order.getId();
     }
 
-    @GlobalTransactional
+    @Override
+    @GlobalTransactional(rollbackFor = Exception.class)
+    @Transactional
     public Long saveInGlobalTransaction(SaveVo saveVo) {
+        log.info("saveInGlobalTransaction: {}", saveVo);
         Order order = new Order();
         BeanUtils.copyProperties(saveVo, order);
         if (!save(order)) {
@@ -151,10 +153,12 @@ public class OrderServiceImpl extends ServiceImplBase<OrderDao, Order> implement
                 saveVo.getUserId(),
                 AddBalanceByIdVo.builder()
                         .addBalance(saveVo.getMoney().negate())
-                        .inGlobalTransaction(true).build());
+                        .inGlobalTransaction(true)
+                        .inTransaction(false)
+                        .build());
         log.info("accountService.addBalanceById: {}", addBalanceResult);
 
-        if (true)
+        if (false)
             throw new RuntimeException("test rollback");
         if (!addBalanceResult.getSuccess()) {
             order.setStatus(2);
@@ -176,6 +180,21 @@ public class OrderServiceImpl extends ServiceImplBase<OrderDao, Order> implement
                 log.error("{}", e);
             }
         }
+
         return order.getId();
+    }
+
+    @Override
+    public int update(UpdateVo updateVo) {
+        Order order = new Order();
+        BeanUtils.copyProperties(updateVo, order);
+
+        LambdaUpdateWrapper<Order> updateWrapper = Wrappers.lambdaUpdate(Order.class);
+
+        updateWrapper.eq(ObjectUtil.isNotEmpty(updateVo.getId()), Order::getId, updateVo.getId());
+
+        int count = orderDao.update(order, updateWrapper);
+
+        return count;
     }
 }

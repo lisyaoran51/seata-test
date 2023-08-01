@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import io.seata.spring.annotation.GlobalLock;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.example.accountService.dao.AccountDao;
@@ -53,22 +54,10 @@ public class AccountServiceImpl extends ServiceImplBase<AccountDao, Account> imp
         log.info("updateById: {}", updateByIdVo);
         Account account = new Account();
         BeanUtils.copyProperties(updateByIdVo, account);
+        account.setUpdateTime(null);
         if (!updateById(account)) {
             throw new RuntimeException("fail to update: " + account.toString());
         }
-    }
-
-    @Override
-    @GlobalTransactional
-    public AddBalanceByIdDto addBalanceById(AddBalanceByIdVo addBalanceByIdVo) {
-        log.info("updateById: {}", addBalanceByIdVo);
-        if (addBalanceByIdVo.isInTransaction()) {
-            return addBalanceByIdInTransaction(addBalanceByIdVo);
-        }
-        if (addBalanceByIdVo.isInGlobalTransaction()) {
-            return addBalanceByIdInGlobalTransaction(addBalanceByIdVo);
-        }
-        return addBalanceByIdSimple(addBalanceByIdVo);
     }
 
     @Override
@@ -87,11 +76,14 @@ public class AccountServiceImpl extends ServiceImplBase<AccountDao, Account> imp
         return new LockDto(clone);
     }
 
-    AddBalanceByIdDto addBalanceByIdSimple(AddBalanceByIdVo addBalanceByIdVo) {
+    @Override
+    public AddBalanceByIdDto addBalanceByIdSimple(AddBalanceByIdVo addBalanceByIdVo) {
+        log.info("addBalanceByIdSimple: {}", addBalanceByIdVo);
         Account account = getById(addBalanceByIdVo.getId());
         if (account == null) {
             throw new RuntimeException("fail to get account: " + addBalanceByIdVo.toString());
         }
+        log.info("getById: {}", account);
 
         if (account.getBalance().add(addBalanceByIdVo.getAddBalance()).compareTo(BigDecimal.ZERO) < 0) {
             throw new RuntimeException("balance not enough: " + account.toString());
@@ -104,24 +96,10 @@ public class AccountServiceImpl extends ServiceImplBase<AccountDao, Account> imp
         return AddBalanceByIdDto.builder().balance(account.getBalance()).build();
     }
 
-    @GlobalTransactional
-    AddBalanceByIdDto addBalanceByIdInGlobalTransaction(AddBalanceByIdVo addBalanceByIdVo) {
-        var account = baseMapper.selectByIdForUpdate(addBalanceByIdVo.getId())
-                .orElseThrow(() -> new RuntimeException("fail to get account: " + addBalanceByIdVo.toString()));
-
-        if (account.getBalance().add(addBalanceByIdVo.getAddBalance()).compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException("balance not enough: " + account.toString());
-        }
-
-        account.setBalance(account.getBalance().add(addBalanceByIdVo.getAddBalance()));
-        if (!updateById(account)) {
-            throw new RuntimeException("fail to update: " + account.toString());
-        }
-        return AddBalanceByIdDto.builder().balance(account.getBalance()).build();
-    }
-
+    @Override
     @Transactional
-    AddBalanceByIdDto addBalanceByIdInTransaction(AddBalanceByIdVo addBalanceByIdVo) {
+    public AddBalanceByIdDto addBalanceByIdInTransaction(AddBalanceByIdVo addBalanceByIdVo) {
+        log.info("addBalanceByIdInTransaction: {}", addBalanceByIdVo);
         var account = baseMapper.selectByIdForUpdate(addBalanceByIdVo.getId())
                 .orElseThrow(() -> new RuntimeException("fail to get account: " + addBalanceByIdVo.toString()));
 
@@ -133,6 +111,34 @@ public class AccountServiceImpl extends ServiceImplBase<AccountDao, Account> imp
         if (!updateById(account)) {
             throw new RuntimeException("fail to update: " + account.toString());
         }
+        return AddBalanceByIdDto.builder().balance(account.getBalance()).build();
+    }
+
+    @Override
+    @GlobalTransactional
+    @Transactional
+    public AddBalanceByIdDto addBalanceByIdInGlobalTransaction(AddBalanceByIdVo addBalanceByIdVo) {
+        log.info("addBalanceByIdInGlobalTransaction: {}", addBalanceByIdVo);
+        var account = baseMapper.selectByIdForUpdate(addBalanceByIdVo.getId())
+                .orElseThrow(() -> new RuntimeException("fail to get account: " + addBalanceByIdVo.toString()));
+
+        if (account.getBalance().add(addBalanceByIdVo.getAddBalance()).compareTo(BigDecimal.ZERO) < 0) {
+            throw new RuntimeException("balance not enough: " + account.toString());
+        }
+
+        account.setBalance(account.getBalance().add(addBalanceByIdVo.getAddBalance()));
+        account.setUpdateTime(null);
+        if (!updateById(account)) {
+            throw new RuntimeException("fail to update: " + account.toString());
+        }
+
+//        try {
+//            while(true)
+//                Thread.sleep(100);
+//        } catch (Exception e) {
+//
+//        }
+
         return AddBalanceByIdDto.builder().balance(account.getBalance()).build();
     }
 }
