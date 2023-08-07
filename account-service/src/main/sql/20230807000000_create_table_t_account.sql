@@ -1,19 +1,21 @@
 
+CREATE DATABASE d_account;
 
-CREATE DATABASE d_order;
-
-
-CREATE TABLE d_order.t_order (
+CREATE TABLE d_account.t_account (
 	id BIGINT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	user_id BIGINT(11) NOT NULL,
-	money DECIMAL(11,0) NOT NULL,
-	status INT(1) DEFAULT 0 COMMENT '訂單狀態 0:執行中 1:成功 2:失敗',
+	balance DECIMAL(11,0) DEFAULT NULL,
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
 ) ENGINE=INNODB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
+INSERT INTO d_account.t_account(`balance`) VALUES (200000);
+INSERT INTO d_account.t_account(`balance`) VALUES (200000);
+INSERT INTO d_account.t_account(`balance`) VALUES (200000);
+INSERT INTO d_account.t_account(`balance`) VALUES (200000);
+INSERT INTO d_account.t_account(`balance`) VALUES (200000);
+
 -- for AT mode you must to init this sql for you business database. the seata server not need it.
-CREATE TABLE IF NOT EXISTS `d_order.undo_log`
+CREATE TABLE IF NOT EXISTS `d_account.undo_log`
 (
     `branch_id`     BIGINT       NOT NULL COMMENT 'branch transaction id',
     `xid`           VARCHAR(128) NOT NULL COMMENT 'global transaction id',
@@ -24,4 +26,4 @@ CREATE TABLE IF NOT EXISTS `d_order.undo_log`
     `log_modified`  DATETIME(6)  NOT NULL COMMENT 'modify datetime',
     UNIQUE KEY `ux_undo_log` (`xid`, `branch_id`)
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COMMENT ='AT transaction mode undo table';
-ALTER TABLE `d_order.undo_log` ADD INDEX `ix_log_created` (`log_created`);
+ALTER TABLE `d_account.undo_log` ADD INDEX `ix_log_created` (`log_created`);

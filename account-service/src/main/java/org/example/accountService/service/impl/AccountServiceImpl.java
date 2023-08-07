@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import io.seata.core.context.RootContext;
 import io.seata.spring.annotation.GlobalLock;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
@@ -98,6 +99,7 @@ public class AccountServiceImpl extends ServiceImplBase<AccountDao, Account> imp
 
     @Override
     @Transactional
+//    @GlobalLock
     public AddBalanceByIdDto addBalanceByIdInTransaction(AddBalanceByIdVo addBalanceByIdVo) {
         log.info("addBalanceByIdInTransaction: {}", addBalanceByIdVo);
         var account = baseMapper.selectByIdForUpdate(addBalanceByIdVo.getId())
@@ -119,6 +121,7 @@ public class AccountServiceImpl extends ServiceImplBase<AccountDao, Account> imp
     @Transactional
     public AddBalanceByIdDto addBalanceByIdInGlobalTransaction(AddBalanceByIdVo addBalanceByIdVo) {
         log.info("addBalanceByIdInGlobalTransaction: {}", addBalanceByIdVo);
+//        RootContext.unbind();
         var account = baseMapper.selectByIdForUpdate(addBalanceByIdVo.getId())
                 .orElseThrow(() -> new RuntimeException("fail to get account: " + addBalanceByIdVo.toString()));
 
@@ -131,13 +134,10 @@ public class AccountServiceImpl extends ServiceImplBase<AccountDao, Account> imp
         if (!updateById(account)) {
             throw new RuntimeException("fail to update: " + account.toString());
         }
-
 //        try {
 //            while(true)
 //                Thread.sleep(100);
-//        } catch (Exception e) {
-//
-//        }
+//        } catch (Exception e) {}
 
         return AddBalanceByIdDto.builder().balance(account.getBalance()).build();
     }

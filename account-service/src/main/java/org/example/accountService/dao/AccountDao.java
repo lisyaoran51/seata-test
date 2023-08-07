@@ -12,4 +12,7 @@ public interface AccountDao extends BaseMapper<Account> {
 
     @Select(value = "SELECT a.* FROM t_account a WHERE a.id = #{id} FOR UPDATE")
     Optional<Account> selectByIdForUpdate(@Param("id") Long id);
+
+    @Select(value = "SELECT a.* FROM t_account a WHERE a.id = #{id} LOCK IN SHARE MODE")
+    Optional<Account> selectByIdLockInShareMode(@Param("id") Long id);
 }

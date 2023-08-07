@@ -1,0 +1,366 @@
+{
+	"info": {
+		"_postman_id": "aa148998-adf9-4eb0-9aa2-168e4c4ade9b",
+		"name": "seata test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28480174"
+	},
+	"item": [
+		{
+			"name": "seata-test",
+			"item": [
+				{
+					"name": "order-service",
+					"item": [
+						{
+							"name": "order",
+							"item": [
+								{
+									"name": "orders",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "127.0.0.1:8090/order/orders",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8090",
+											"path": [
+												"order",
+												"orders"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "orders",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"userId\": 7,\n    \"money\": 55,\n    \"inTransaction\": false,\n    \"inGlobalTransaction\": true,\n    \"lockId\": 10\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "127.0.0.1:8090/order/orders",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8090",
+											"path": [
+												"order",
+												"orders"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "lock",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"id\": 10\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "127.0.0.1:8090/order/lock",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8090",
+											"path": [
+												"order",
+												"lock"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "unlock",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"id\": 10\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "127.0.0.1:8090/order/unlock",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8090",
+											"path": [
+												"order",
+												"unlock"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "accountService",
+					"item": [
+						{
+							"name": "account",
+							"item": [
+								{
+									"name": "accounts",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "127.0.0.1:8095/account/accounts",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8095",
+											"path": [
+												"account",
+												"accounts"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "accounts",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"balance\": 2000000\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "127.0.0.1:8095/account/accounts",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8095",
+											"path": [
+												"account",
+												"accounts"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "accounts/{id}",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"balance\" : 200100\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "127.0.0.1:8095/account/accounts/:id",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8095",
+											"path": [
+												"account",
+												"accounts",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "7"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "accounts/:id/addBalance",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"addBalance\" : 300,\n    \"inTransaction\" : true,\n    \"inGlobalTransaction\": false\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "127.0.0.1:8095/account/accounts/:id/addBalance",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8095",
+											"path": [
+												"account",
+												"accounts",
+												":id",
+												"addBalance"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "7"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "lock",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"id\": 10\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "127.0.0.1:8095/account/lock",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8095",
+											"path": [
+												"account",
+												"lock"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "unlock",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"id\": 10\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "127.0.0.1:8095/account/unlock",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8095",
+											"path": [
+												"account",
+												"unlock"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}

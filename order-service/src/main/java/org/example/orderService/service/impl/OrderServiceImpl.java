@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import io.seata.core.context.RootContext;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.example.orderService.cloud.AccountService;
@@ -143,6 +144,7 @@ public class OrderServiceImpl extends ServiceImplBase<OrderDao, Order> implement
     @Transactional
     public Long saveInGlobalTransaction(SaveVo saveVo) {
         log.info("saveInGlobalTransaction: {}", saveVo);
+//        RootContext.unbind();
         Order order = new Order();
         BeanUtils.copyProperties(saveVo, order);
         if (!save(order)) {
@@ -157,8 +159,16 @@ public class OrderServiceImpl extends ServiceImplBase<OrderDao, Order> implement
                         .inTransaction(false)
                         .build());
         log.info("accountService.addBalanceById: {}", addBalanceResult);
+        addBalanceResult = accountService.addBalanceById(
+                saveVo.getUserId(),
+                AddBalanceByIdVo.builder()
+                        .addBalance(saveVo.getMoney().negate())
+                        .inGlobalTransaction(true)
+                        .inTransaction(false)
+                        .build());
+        log.info("accountService.addBalanceById: {}", addBalanceResult);
 
-        if (false)
+        if (true)
             throw new RuntimeException("test rollback");
         if (!addBalanceResult.getSuccess()) {
             order.setStatus(2);
