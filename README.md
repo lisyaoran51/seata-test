@@ -1,6 +1,20 @@
 # seata-test
 
-[TOC]
+*   [概述](#概述)
+*   [實驗方式](#seata-at模式實驗方式)
+*   [實驗結果](#seata-at模式實驗結果)
+    *   [global transaction](#僅使用global-transaction)
+        *   [global transaction + unbind](#使用global-transaction並在程式碼中加入rootcontextunbind)
+    *   [local transaction](#僅開啟local-transaction)
+    *   [global + local transaction](#使用local-transaction--global-transaction)
+        *   [global + local transaction + unbind](#使用global--local-transaction並在程式碼中加入rootcontextunbind)
+    *   [global lock](#只使用global-lock)
+    *   [結論](#結論)
+    *   [建議](#建議)
+*   [How to start](#how-to-start)
+*   [how to build docker compose](#how-to-build-docker-compose)
+
+## 概述
 
 這是一個用來測試seata AT模式如何對全局事務進行操作處理的實驗，幫助了解在什麼場景下，應該如何應用seata
 
@@ -170,9 +184,9 @@ accountService -..- accountDB;
 8. #### local + global transaction解鎖上鎖時間差問題：
 > 1. 上游service在commit瞬間，會先提交local資料並解開local鎖，再去seata上global鎖，這兩個動作中間是否有時間差造成有空隙可以被別的transaction讀取？
 > 2. 經過檢查db log發現，seata會先將seata db上全局鎖以後，再回頭把service的local transaction commit掉，因此不會有解鎖到上鎖之間的間隙
-     :::spoiler 解鎖到加鎖之間的db log
-     ![](https://hackmd.io/_uploads/H1aICX9i3.png)
-     :::
+     - 解鎖到加鎖之間的db log
+     ![](https://github.com/lisyaoran51/seata-test/blob/main/db_log.png)
+     
 
 9. #### 開啟transaction後中途修改資料
 > 1. 仍會commit，但中途修改的資料在commit後不會又覆蓋過去
@@ -237,23 +251,33 @@ accountService -..- accountDB;
 
 ### 結論
 
-!!! note inline "結論"
-    1. 可以發現global和local transaction是可以一起使用的，並且同時使用也可以確保資料不會出現髒讀和複寫的狀況
-    2. 上游service雖然不用註解global transaction，也可以在下游service開啟global transaction以後，並呼叫上游時，自動開啟global transaction。但是這會導致當上游service自行執行的時候，不會開啟global transaction，而發生預期外的行為
-    3. global transaction的rollback會使用select for update，因此平常的操作就該使用select for update避免與global transaction衝突
-    4. 一般只使用local transaction，不使用global transaction的查詢，應該考慮可能讀到全局事務的髒寫資料
-    5. 一般只使用global transaction，不使用local transaction的查詢，應該考慮可能讀到local commit前的舊資料
-    6. 一班的查詢，應該考慮可能讀到髒寫資料和舊資料
+> 1. 可以發現global和local transaction是可以一起使用的，並且同時使用也可以確保資料不會出現髒讀和複寫的狀況
+
+> 2. 上游service雖然不用註解global transaction，也可以在下游service開啟global transaction以後，並呼叫上游時，自動開啟global transaction。但是這會導致當上游service自行執行的時候，不會開啟global transaction，而發生預期外的行為
+
+> 3. global transaction的rollback會使用select for update，因此平常的操作就該使用select for update避免與global transaction衝突
+
+> 4. 一般只使用local transaction，不使用global transaction的查詢，應該考慮可能讀到全局事務的髒寫資料
+
+> 5. 一般只使用global transaction，不使用local transaction的查詢，應該考慮可能讀到local commit前的舊資料
+
+> 6. 一班的查詢，應該考慮可能讀到髒寫資料和舊資料
+
 
 ### 建議
 
-!!! info inline "建議"
-    1. local和global transaction應同時使用，才能避免髒讀和複寫
-    2. 雖然下游只要有加上`@GlobalTransaction`，上游service被呼叫的接口就會自動使用全局事務，但是避免哪天被呼叫時剛好沒有加到`@GlobalTransaction`，會造成上游service連帶失去事務效果，因此每個上游的service，都還是必須加上`@GlobalTransaction`註解，保證會在執行時開啟transaction
-    3. transaction中讀取重要資料時，必須使用`select for update`，避免髒讀，或是讀到舊資料
-    4. 需要寫入資料時，都必須先用`select for update`排除其他transaction去讀這筆資料，以免造成其他同時進行的request讀到錯誤資料
-    5. `select lock in share mode`在seata中沒有效果，如果要避免讀取別人髒寫的資料，只能使用`global lock`(或`global transaction`) + `select for update`
-    6. 由於只要下游開啟global transaction，上游就會連帶被開啟global transaction。如果想要完全不用事務來做簡單的操作時，應該要用`RootContext.unbind()`來解開transaction，不過要注意`RootContext.unbind()`的一些side effect
+> 1. local和global transaction應同時使用，才能避免髒讀和複寫
+
+> 2. 雖然下游只要有加上`@GlobalTransaction`，上游service被呼叫的接口就會自動使用全局事務，但是避免哪天被呼叫時剛好沒有加到`@GlobalTransaction`，會造成上游service連帶失去事務效果，因此每個上游的service，都還是必須加上`@GlobalTransaction`註解，保證會在執行時開啟transaction
+
+> 3. transaction中讀取重要資料時，必須使用`select for update`，避免髒讀，或是讀到舊資料
+
+> 4. 需要寫入資料時，都必須先用`select for update`排除其他transaction去讀這筆資料，以免造成其他同時進行的request讀到錯誤資料
+
+> 5. `select lock in share mode`在seata中沒有效果，如果要避免讀取別人髒寫的資料，只能使用`global lock`(或`global transaction`) + `select for update`
+
+> 6. 由於只要下游開啟global transaction，上游就會連帶被開啟global transaction。如果想要完全不用事務來做簡單的操作時，應該要用`RootContext.unbind()`來解開transaction，不過要注意`RootContext.unbind()`的一些side effect
+
 
 
 <br>
